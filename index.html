@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CentroBank | Plataforma Digital</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="refresh" content="0; url=login.html">
+        <title>CentroBank | Acceso Seguro</title>
+    </head>
+    <body>
+        <p>Redirigiendo a <a href="login.html">login.html</a>...</p>
+    </body>
+    </html>
+                        <p id="user-label" class="strip-value">---</p>
+                    </div>
+                    <div>
+                        <p class="strip-label">Rol</p>
+                        <p id="role-label" class="strip-value">---</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <h3>Resumen y consultas</h3>
+                        <p>Accede a la informacion principal de tus cuentas.</p>
+                    </div>
+                    <div class="grid-split">
+                        <section class="card">
+                            <div class="card-title">
+                                <h3>Consultar saldo</h3>
+                                <span class="tag">GET</span>
+                            </div>
+                            <form id="form-saldo" class="stack">
+                                <div class="field">
+                                    <label>Id cuenta</label>
+                                    <input id="saldo-id" type="number" min="1" required>
+                                </div>
+                                <button class="primary-button" type="submit">Consultar</button>
+                            </form>
+                        </section>
+                        <section class="card">
+                            <div class="card-title">
+                                <h3>Consultar deuda</h3>
+                                <span class="tag">GET</span>
+                            </div>
+                            <form id="form-deuda" class="stack">
+                                <div class="field">
+                                    <label>Tipo servicio</label>
+                                    <input id="deuda-tipo" type="number" min="1" required>
+                                </div>
+                                <div class="field">
+                                    <label>Identificador</label>
+                                    <input id="deuda-ident" type="text" required>
+                                </div>
+                                <button class="primary-button" type="submit">Consultar</button>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <h3>Movimientos de cuenta</h3>
+                        <p>Depositos, retiros y transferencias con control total.</p>
+                    </div>
+                    <div class="dashboard">
+                        <section class="card">
+                            <div class="card-title">
+                                <h3>Deposito</h3>
+                                <span class="tag">POST</span>
+                            </div>
+                            <form id="form-deposito" class="stack">
+                                <div class="field">
+                                    <label>Id cuenta</label>
+                                    <input id="deposito-id" type="number" min="1" required>
+                                </div>
+                                <div class="field">
+                                    <label>Monto</label>
+                                    <input id="deposito-monto" type="number" min="0" step="0.01" required>
+                                </div>
+                                <div class="field">
+                                    <label>Referencia</label>
+                                    <input id="deposito-ref" type="text" required>
+                                </div>
+                                <button class="primary-button" type="submit">Depositar</button>
+                            </form>
+                        </section>
+                        <section class="card">
+                            <div class="card-title">
+                                <h3>Retiro</h3>
+                                <span class="tag">POST</span>
+                            </div>
+                            <form id="form-retiro" class="stack">
+                                <div class="field">
+                                    <label>Id cuenta</label>
+                                    <input id="retiro-id" type="number" min="1" required>
+                                </div>
+                                <div class="field">
+                                    <label>Monto</label>
+                                    <input id="retiro-monto" type="number" min="0" step="0.01" required>
+                                </div>
+                                <div class="field">
+                                    <label>Referencia</label>
+                                    <input id="retiro-ref" type="text" required>
+                                </div>
+                                <button class="primary-button" type="submit">Retirar</button>
+                            </form>
+                        </section>
+                        <section class="card">
+                            <div class="card-title">
+                                <h3>Transferencia</h3>
+                                <span class="tag">POST</span>
+                            </div>
+                            <form id="form-transferir" class="stack">
+                                <div class="field">
+                                    <label>Cuenta origen</label>
+                                    <input id="trans-origen" type="number" min="1" required>
+                                </div>
+                                <div class="field">
+                                    <label>Cuenta destino</label>
+                                    <input id="trans-destino" type="number" min="1" required>
+                                </div>
+                                <div class="field">
+                                    <label>Monto</label>
+                                    <input id="trans-monto" type="number" min="0" step="0.01" required>
+                                </div>
+                                <div class="field">
+                                    <label>Descripcion</label>
+                                    <input id="trans-desc" type="text" required>
+                                </div>
+                                <button class="primary-button" type="submit">Transferir</button>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <h3>Pagos y validaciones</h3>
+                        <p>Gestiona servicios y valida identificadores.</p>
+                    </div>
+                    <div class="dashboard">
+                        <section class="card">
+                            <div class="card-title">
+                                <h3>Asociar tarjeta debito</h3>
+                                <span class="tag">POST</span>
+                            </div>
+                            <form id="form-asociar" class="stack">
+                                <div class="field">
+                                    <label>Id cuenta</label>
+                                    <input id="asociar-id" type="number" min="1" required>
+                                </div>
+                                <button class="primary-button" type="submit">Asociar</button>
+                            </form>
+                        </section>
+                        <section class="card">
+                            <div class="card-title">
+                                <h3>Validar identificador</h3>
+                                <span class="tag">POST</span>
+                            </div>
+                            <form id="form-validar" class="stack">
+                                <div class="field">
+                                    <label>Tipo servicio</label>
+                                    <input id="validar-tipo" type="number" min="1" required>
+                                </div>
+                                <div class="field">
+                                    <label>Identificador</label>
+                                    <input id="validar-ident" type="text" required>
+                                </div>
+                                <button class="primary-button" type="submit">Validar</button>
+                            </form>
+                        </section>
+                        <section class="card">
+                            <div class="card-title">
+                                <h3>Ejecutar pago servicio</h3>
+                                <span class="tag">POST</span>
+                            </div>
+                            <form id="form-pago" class="stack">
+                                <div class="field">
+                                    <label>Numero tarjeta</label>
+                                    <input id="pago-tarjeta" type="text" required>
+                                </div>
+                                <div class="field">
+                                    <label>Pin</label>
+                                    <input id="pago-pin" type="password" required>
+                                </div>
+                                <div class="field">
+                                    <label>Tipo servicio</label>
+                                    <input id="pago-tipo" type="number" min="1" required>
+                                </div>
+                                <div class="field">
+                                    <label>Identificador</label>
+                                    <input id="pago-ident" type="text" required>
+                                </div>
+                                <div class="field">
+                                    <label>Monto</label>
+                                    <input id="pago-monto" type="number" min="0" step="0.01" required>
+                                </div>
+                                <div class="field">
+                                    <label>Referencia cliente</label>
+                                    <input id="pago-ref" type="text" required>
+                                </div>
+                                <button class="primary-button" type="submit">Pagar</button>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <h3>Centro de mensajes</h3>
+                        <p>Resultados de cada solicitud a la API.</p>
+                    </div>
+                    <div class="dashboard">
+                        <section class="card log-card">
+                            <div class="card-title">
+                                <h3>Respuesta API</h3>
+                                <span class="tag">LOG</span>
+                            </div>
+                            <pre id="api-log">Sin solicitudes aun.</pre>
+                        </section>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-admin" class="view hidden" data-role="ADMIN">
+                <header class="panel-header">
+                    <div>
+                        <p class="eyebrow">Panel admin</p>
+                        <h2>Control operativo y auditoria</h2>
+                    </div>
+                    <div class="token-chip">
+                        <div>
+                            <p class="chip-label">Token activo</p>
+                            <p class="chip-value" id="token-preview-admin">---</p>
+                        </div>
+                        <button id="copy-token-admin" class="outline-button">Copiar</button>
+                    </div>
+                </header>
+
+                <div class="identity-strip">
+                    <div>
+                        <p class="strip-label">Administrador</p>
+                        <p id="user-label-admin" class="strip-value">---</p>
+                    </div>
+                    <div>
+                        <p class="strip-label">Rol</p>
+                        <p id="role-label-admin" class="strip-value">---</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <h3>Operaciones administrativas</h3>
+                        <p>Acciones sensibles que requieren autorizacion.</p>
+                    </div>
+                    <div class="grid-split">
+                        <section class="card admin-card">
+                            <div class="card-title">
+                                <h3>Activar cuenta</h3>
+                                <span class="tag">POST</span>
+                            </div>
+                            <form id="form-activar" class="stack">
+                                <div class="field">
+                                    <label>Id cuenta</label>
+                                    <input id="activar-id" type="number" min="1" required>
+                                </div>
+                                <div class="field">
+                                    <label>Monto deposito</label>
+                                    <input id="activar-monto" type="number" min="0" step="0.01" required>
+                                </div>
+                                <button class="primary-button" type="submit">Activar</button>
+                            </form>
+                        </section>
+                        <section class="card admin-card">
+                            <div class="card-title">
+                                <h3>Bitacora</h3>
+                                <span class="tag">GET</span>
+                            </div>
+                            <form id="form-bitacora" class="stack">
+                                <div class="field">
+                                    <label>Id cuenta</label>
+                                    <input id="bitacora-id" type="number" min="1" required>
+                                </div>
+                                <div class="grid two">
+                                    <div class="field">
+                                        <label>Desde</label>
+                                        <input id="bitacora-desde" type="datetime-local">
+                                    </div>
+                                    <div class="field">
+                                        <label>Hasta</label>
+                                        <input id="bitacora-hasta" type="datetime-local">
+                                    </div>
+                                </div>
+                                <button class="primary-button" type="submit">Consultar</button>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <h3>Centro de auditoria</h3>
+                        <p>Registro de respuestas para control interno.</p>
+                    </div>
+                    <div class="dashboard">
+                        <section class="card log-card">
+                            <div class="card-title">
+                                <h3>Respuesta API</h3>
+                                <span class="tag">LOG</span>
+                            </div>
+                            <pre id="api-log-admin">Sin solicitudes aun.</pre>
+                        </section>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

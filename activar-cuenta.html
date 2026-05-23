@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CentroBank | Activar Cuenta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="admin">
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="logo-block">
+                <div class="logo-icon">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <div>
+                    <p class="logo-title">CentroBank</p>
+                    <p class="logo-sub">Banca digital regional</p>
+                </div>
+            </div>
+
+            <nav class="menu">
+                <a class="menu-item" href="admin.html">
+                    <i class="fas fa-house"></i>
+                    Bienvenida admin
+                </a>
+                <a class="menu-item active" href="activar-cuenta.html">
+                    <i class="fas fa-user-check"></i>
+                    Activar cuenta
+                </a>
+                <a class="menu-item" href="bitacora.html">
+                    <i class="fas fa-clipboard-list"></i>
+                    Bitacora
+                </a>
+                <a class="menu-item" href="admin-mensajes.html">
+                    <i class="fas fa-bell"></i>
+                    Centro de auditoria
+                </a>
+            </nav>
+
+            <div class="session-card">
+                <div>
+                    <p class="session-label">Estado</p>
+                    <p id="status-session" class="session-value">Sin autenticar</p>
+                </div>
+                <span id="status-indicator" class="session-indicator"></span>
+                <button id="logout-btn" class="outline-button" type="button">
+                    <i class="fas fa-right-from-bracket"></i>
+                    Cerrar sesion
+                </button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <section class="view">
+                <header class="panel-header">
+                    <div>
+                        <p class="eyebrow">Activar cuenta</p>
+                        <h2>Habilitacion de cuentas nuevas</h2>
+                        <p class="panel-subtitle">Configura el deposito inicial para activar.</p>
+                    </div>
+                    <div class="token-chip">
+                        <div>
+                            <p class="chip-label">Token activo</p>
+                            <p class="chip-value" id="token-preview-admin">---</p>
+                        </div>
+                        <button id="copy-token-admin" class="outline-button" type="button">Copiar</button>
+                    </div>
+                </header>
+
+                <div class="identity-strip">
+                    <div>
+                        <p class="strip-label">Administrador</p>
+                        <p id="user-label-admin" class="strip-value">---</p>
+                    </div>
+                    <div>
+                        <p class="strip-label">Rol</p>
+                        <p id="role-label-admin" class="strip-value">---</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <h3>Operacion principal</h3>
+                        <p>Endpoint /api/Operaciones/activar-cuenta</p>
+                    </div>
+                    <div class="grid-split">
+                        <section class="card admin-card">
+                            <div class="card-title">
+                                <h3>Activar cuenta</h3>
+                                <span class="tag">POST</span>
+                            </div>
+                            <form id="form-activar" class="stack">
+                                <div class="field">
+                                    <label>Id cuenta</label>
+                                    <input id="activar-id" type="number" min="1" required>
+                                </div>
+                                <div class="field">
+                                    <label>Monto deposito</label>
+                                    <input id="activar-monto" type="number" min="0" step="0.01" required>
+                                </div>
+                                <button class="primary-button" type="submit">Activar</button>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

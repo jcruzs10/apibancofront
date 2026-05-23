@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CentroBank | Consultar Saldo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="usuario">
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="logo-block">
+                <div class="logo-icon">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <div>
+                    <p class="logo-title">CentroBank</p>
+                    <p class="logo-sub">Banca digital regional</p>
+                </div>
+            </div>
+
+            <nav class="menu">
+                <a class="menu-item" href="usuario.html">
+                    <i class="fas fa-house"></i>
+                    Bienvenida
+                </a>
+                <a class="menu-item active" href="saldo.html">
+                    <i class="fas fa-wallet"></i>
+                    Consultar saldo
+                </a>
+                <a class="menu-item" href="deuda.html">
+                    <i class="fas fa-file-invoice"></i>
+                    Consultar deuda
+                </a>
+                <a class="menu-item" href="deposito.html">
+                    <i class="fas fa-piggy-bank"></i>
+                    Deposito
+                </a>
+                <a class="menu-item" href="retiro.html">
+                    <i class="fas fa-arrow-down"></i>
+                    Retiro
+                </a>
+                <a class="menu-item" href="transferencia.html">
+                    <i class="fas fa-right-left"></i>
+                    Transferencia
+                </a>
+                <a class="menu-item" href="asociar-tarjeta.html">
+                    <i class="fas fa-credit-card"></i>
+                    Asociar tarjeta
+                </a>
+                <a class="menu-item" href="validar-identificador.html">
+                    <i class="fas fa-check"></i>
+                    Validar identificador
+                </a>
+                <a class="menu-item" href="pago-servicio.html">
+                    <i class="fas fa-receipt"></i>
+                    Pago servicio
+                </a>
+                <a class="menu-item" href="mensajes.html">
+                    <i class="fas fa-bell"></i>
+                    Centro de mensajes
+                </a>
+            </nav>
+
+            <div class="session-card">
+                <div>
+                    <p class="session-label">Estado</p>
+                    <p id="status-session" class="session-value">Sin autenticar</p>
+                </div>
+                <span id="status-indicator" class="session-indicator"></span>
+                <button id="logout-btn" class="outline-button" type="button">
+                    <i class="fas fa-right-from-bracket"></i>
+                    Cerrar sesion
+                </button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <section class="view">
+                <header class="panel-header">
+                    <div>
+                        <p class="eyebrow">Consultar saldo</p>
+                        <h2>Consulta tu saldo en tiempo real</h2>
+                        <p class="panel-subtitle">Usa el ID de cuenta para obtener el disponible actual.</p>
+                    </div>
+                    <div class="token-chip">
+                        <div>
+                            <p class="chip-label">Token activo</p>
+                            <p class="chip-value" id="token-preview">---</p>
+                        </div>
+                        <button id="copy-token" class="outline-button" type="button">Copiar</button>
+                    </div>
+                </header>
+
+                <div class="identity-strip">
+                    <div>
+                        <p class="strip-label">Cliente</p>
+                        <p id="user-label" class="strip-value">---</p>
+                    </div>
+                    <div>
+                        <p class="strip-label">Rol</p>
+                        <p id="role-label" class="strip-value">---</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <h3>Consulta principal</h3>
+                        <p>Endpoint /api/Operaciones/saldo/{idCuenta}</p>
+                    </div>
+                    <div class="grid-split">
+                        <section class="card">
+                            <div class="card-title">
+                                <h3>Consultar saldo</h3>
+                                <span class="tag">GET</span>
+                            </div>
+                            <form id="form-saldo" class="stack">
+                                <div class="field">
+                                    <label>Id cuenta</label>
+                                    <input id="saldo-id" type="number" min="1" required>
+                                </div>
+                                <button class="primary-button" type="submit">Consultar</button>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

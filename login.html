@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CentroBank | Acceso Seguro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="login">
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="logo-block">
+                <div class="logo-icon">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <div>
+                    <p class="logo-title">CentroBank</p>
+                    <p class="logo-sub">Banca digital regional</p>
+                </div>
+            </div>
+
+            <nav class="menu">
+                <a class="menu-item active" href="login.html">
+                    <i class="fas fa-lock"></i>
+                    Acceso seguro
+                </a>
+            </nav>
+
+            <div class="session-card">
+                <div>
+                    <p class="session-label">Estado</p>
+                    <p id="status-session" class="session-value">Sin autenticar</p>
+                </div>
+                <span id="status-indicator" class="session-indicator"></span>
+                <button id="logout-btn" class="outline-button" type="button">
+                    <i class="fas fa-right-from-bracket"></i>
+                    Cerrar sesion
+                </button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <section class="view">
+                <div class="hero">
+                    <div class="hero-copy">
+                        <p class="eyebrow">Plataforma bancaria</p>
+                        <h1>Tu banca digital, clara y segura</h1>
+                        <p>
+                            Controla operaciones, pagos y activaciones desde una interfaz profesional.
+                            Diseñada para clientes y administradores en una sola plataforma.
+                        </p>
+                        <div class="hero-highlights">
+                            <div>
+                                <span>Seguridad</span>
+                                <strong>Tokenizado</strong>
+                            </div>
+                            <div>
+                                <span>API</span>
+                                <strong>Azure</strong>
+                            </div>
+                            <div>
+                                <span>Operaciones</span>
+                                <strong>En tiempo real</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-card">
+                        <div class="tabbar">
+                            <button class="tab-button active" data-tab="login" type="button">Inicio de sesion</button>
+                            <button class="tab-button" data-tab="registro" type="button">Crear perfil</button>
+                        </div>
+                        <div class="tab-content">
+                            <form id="form-login" class="tab-panel" data-panel="login">
+                                <div class="form-head">
+                                    <h3>Acceso de clientes</h3>
+                                    <p>Ingresa a tu cuenta y administra tus operaciones.</p>
+                                </div>
+                                <div class="field">
+                                    <label>Credencial</label>
+                                    <input id="login-credencial" type="text" placeholder="correo o usuario" required>
+                                </div>
+                                <div class="field">
+                                    <label>Password</label>
+                                    <input id="login-password" type="password" placeholder="••••••••" required>
+                                </div>
+                                <button class="primary-button" type="submit">Entrar</button>
+                                <p id="login-message" class="helper-text hidden"></p>
+                                <p class="helper-text">Endpoint /api/Auth/login</p>
+                            </form>
+                            <form id="form-register" class="tab-panel hidden" data-panel="registro">
+                                <div class="form-head">
+                                    <h3>Nuevo cuentahabiente</h3>
+                                    <p>Registro rapido para clientes persona natural.</p>
+                                </div>
+                                <div class="grid two">
+                                    <div class="field">
+                                        <label>Nombre</label>
+                                        <input id="reg-nombre" type="text" required>
+                                    </div>
+                                    <div class="field">
+                                        <label>Apellido</label>
+                                        <input id="reg-apellido" type="text" required>
+                                    </div>
+                                    <div class="field">
+                                        <label>DPI</label>
+                                        <input id="reg-dpi" type="text" required>
+                                    </div>
+                                    <div class="field">
+                                        <label>NIT</label>
+                                        <input id="reg-nit" type="text" required>
+                                    </div>
+                                    <div class="field">
+                                        <label>Telefono</label>
+                                        <input id="reg-telefono" type="text" required>
+                                    </div>
+                                    <div class="field">
+                                        <label>Email</label>
+                                        <input id="reg-email" type="email" required>
+                                    </div>
+                                    <div class="field">
+                                        <label>Tipo de cuenta</label>
+                                        <input id="reg-tipo" type="number" min="1" placeholder="idTipoCuenta" required>
+                                    </div>
+                                </div>
+                                <button class="primary-button" type="submit">Registrar perfil</button>
+                                <p class="helper-text">Endpoint /api/Cuentahabientes/perfil</p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="login-extra">
+                    <div class="section-head">
+                        <h3>Servicios destacados</h3>
+                        <p>Acceso rapido a lo mas usado por nuestros clientes.</p>
+                    </div>
+                    <div class="promo-grid">
+                        <article class="promo-card">
+                            <div class="promo-icon"><i class="fas fa-bolt"></i></div>
+                            <h4>Pagos inmediatos</h4>
+                            <p>Gestiona tus servicios con validacion y cobro en segundos.</p>
+                        </article>
+                        <article class="promo-card">
+                            <div class="promo-icon"><i class="fas fa-shield"></i></div>
+                            <h4>Seguridad avanzada</h4>
+                            <p>Sesion tokenizada y monitoreo constante de actividad.</p>
+                        </article>
+                        <article class="promo-card">
+                            <div class="promo-icon"><i class="fas fa-chart-line"></i></div>
+                            <h4>Resumen financiero</h4>
+                            <p>Consulta saldo, movimientos y transferencias en un solo panel.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
