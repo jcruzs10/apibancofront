@@ -92,3 +92,4 @@ V4.json
 # Excepciones para archivos de configuración de Azure SWA
 !staticwebapp.config.json
 !public/staticwebapp.config.json
+!package.json
