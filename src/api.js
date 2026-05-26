@@ -1,16 +1,104 @@
 import { API_URL } from './config.js';
 
-// Auxiliar para obtener el token almacenado
+const ROLE_CLAIMS = [
+  'role',
+  'roles',
+  'rol',
+  'perfil',
+  'tipoUsuario',
+  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+];
+
+function decodeJwtPayload(token) {
+  if (!token || typeof token !== 'string') return null;
+
+  const [, payload] = token.split('.');
+  if (!payload) return null;
+
+  try {
+    const normalizedPayload = payload
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      .padEnd(Math.ceil(payload.length / 4) * 4, '=');
+    const decoded = atob(normalizedPayload);
+    const json = decodeURIComponent(
+      decoded
+        .split('')
+        .map(char => `%${char.charCodeAt(0).toString(16).padStart(2, '0')}`)
+        .join('')
+    );
+
+    return JSON.parse(json);
+  } catch (error) {
+    console.warn('No se pudo leer el payload del token JWT:', error);
+    return null;
+  }
+}
+
+function normalizeRole(rawRole) {
+  const role = Array.isArray(rawRole) ? rawRole[0] : rawRole;
+  if (!role) return null;
+
+  const normalizedRole = String(role).trim().toLowerCase();
+
+  if (['admin', 'administrador', 'administrator'].includes(normalizedRole)) {
+    return 'admin';
+  }
+
+  if (['usuario', 'user', 'cliente', 'client'].includes(normalizedRole)) {
+    return 'usuario';
+  }
+
+  return null;
+}
+
+function getRoleFromPayload(payload) {
+  if (!payload || typeof payload !== 'object') return null;
+
+  for (const claim of ROLE_CLAIMS) {
+    const role = normalizeRole(payload[claim]);
+    if (role) return role;
+  }
+
+  return null;
+}
+
+function isTokenExpired(payload) {
+  if (!payload?.exp) return false;
+  return Date.now() >= Number(payload.exp) * 1000;
+}
+
+function buildSession({ credencial, token, response }) {
+  const payload = decodeJwtPayload(token);
+  const tokenRole = getRoleFromPayload(payload);
+  const responseRole = normalizeRole(response?.role)
+    || normalizeRole(response?.rol)
+    || normalizeRole(response?.tipoUsuario);
+  const role = tokenRole || responseRole;
+
+  if (!role) {
+    throw new Error('La API no devolvio un rol valido para esta sesion.');
+  }
+
+  if (isTokenExpired(payload)) {
+    throw new Error('La sesion expiro. Inicie sesion nuevamente.');
+  }
+
+  return {
+    credencial,
+    token,
+    role
+  };
+}
+
 function getAuthHeader() {
   const token = localStorage.getItem('token');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
-// Auxiliar centralizado para realizar las peticiones HTTP
 async function request(path, options = {}) {
   const url = `${API_URL}${path}`;
   
-  // Fusionar los headers por defecto, de autenticación y los personalizados
   const headers = {
     'Content-Type': 'application/json',
     ...getAuthHeader(),
@@ -25,7 +113,6 @@ async function request(path, options = {}) {
   try {
     const response = await fetch(url, config);
     
-    // Si la respuesta no es OK, intentamos parsear el error que devuelve la API
     if (!response.ok) {
       let errorMsg = `Error del servidor (${response.status})`;
       try {
@@ -40,7 +127,6 @@ async function request(path, options = {}) {
       throw new Error(errorMsg);
     }
 
-    // Algunas peticiones de éxito no devuelven contenido (204) o devuelven texto plano
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
       return await response.json();
@@ -61,20 +147,47 @@ export const BancoAPI = {
       body: JSON.stringify({ credencial, password })
     });
     
-    // Si el login fue exitoso y devolvió datos (por ejemplo, un token)
-    if (response && response.token) {
-      localStorage.setItem('token', response.token);
+    const token = response?.token || response?.accessToken || response?.jwt || null;
+    const session = buildSession({ credencial, token, response });
+
+    if (session.token) {
+      localStorage.setItem('token', session.token);
     }
-    // Guardar también la credencial para saber quién inició sesión
-    localStorage.setItem('credencial', credencial);
+
+    localStorage.setItem('credencial', session.credencial);
+    localStorage.setItem('rol', session.role);
     
-    return response;
+    return {
+      ...response,
+      credencial: session.credencial,
+      role: session.role
+    };
+  },
+
+  getStoredSession() {
+    const credencial = localStorage.getItem('credencial');
+    const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('rol');
+
+    if (!credencial) return null;
+
+    try {
+      return buildSession({
+        credencial,
+        token,
+        response: { role: storedRole }
+      });
+    } catch (error) {
+      console.warn('Sesion local invalida:', error);
+      this.logout();
+      return null;
+    }
   },
 
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('credencial');
-    localStorage.removeItem('role');
+    localStorage.removeItem('rol');
   },
 
   // --- CUENTAHABIENTES ---

@@ -1,6 +1,5 @@
 import { BancoAPI } from './api.js';
 import * as UI from './ui.js';
-import { API_URL } from './config.js';
 
 // --- MAPEO DE RUTAS Y ROLES REQUERIDOS ---
 const ROUTES = {
@@ -16,78 +15,43 @@ const ROUTES = {
 
 // --- CONFIGURACIÓN DE ESTADO GLOBAL SEGURO EN MEMORIA ---
 let state = {
-  role: 'usuario', 
+  role: null, 
   activeUser: null,
   activeAccount: null
 };
 
-function normalizeRole(value) {
-  if (!value) return null;
-  const text = String(value).toLowerCase();
-  if (text.includes('admin')) return 'admin';
-  if (text.includes('usuario') || text.includes('user')) return 'usuario';
-  return null;
+function getDefaultRoute(role) {
+  return role === 'admin' ? 'clientes' : 'cuenta';
 }
 
-function decodeJwtPayload(token) {
-  if (!token) return null;
-  const parts = token.split('.');
-  if (parts.length < 2) return null;
-  const base64Url = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-  const padding = '='.repeat((4 - (base64Url.length % 4)) % 4);
-  try {
-    return JSON.parse(atob(base64Url + padding));
-  } catch (error) {
-    console.warn('No se pudo decodificar el token para resolver rol.', error);
-    return null;
+function applySession(session) {
+  state.activeUser = session.credencial;
+  state.role = session.role;
+
+  UI.hideLoginScreen();
+  UI.setupTabs(state.role);
+  document.getElementById('header-user-badge').textContent = state.role === 'admin'
+    ? 'Administrador Core'
+    : `Usuario: ${state.activeUser}`;
+
+  if (state.role === 'admin') {
+    cargarDiagnosticoCore();
   }
-}
-
-function resolveRoleFromToken(token) {
-  const payload = decodeJwtPayload(token);
-  if (!payload) return null;
-
-  const roleFromPayload = normalizeRole(payload.role || payload.rol || payload.perfil || payload.tipoUsuario);
-  if (roleFromPayload) return roleFromPayload;
-
-  const roles = payload.roles || payload.authorities || payload.claims;
-  if (Array.isArray(roles)) {
-    const match = roles.map(normalizeRole).find(Boolean);
-    if (match) return match;
-  }
-
-  if (payload.isAdmin === true || payload.admin === true) return 'admin';
-  return null;
-}
-
-function resolveRoleFromResponse(loginResponse, credencial) {
-  const responseRole = normalizeRole(loginResponse?.role || loginResponse?.rol || loginResponse?.perfil || loginResponse?.tipoUsuario);
-  if (responseRole) return responseRole;
-
-  const roles = loginResponse?.roles || loginResponse?.authorities || loginResponse?.claims;
-  if (Array.isArray(roles)) {
-    const match = roles.map(normalizeRole).find(Boolean);
-    if (match) return match;
-  }
-
-  if (loginResponse?.isAdmin === true || loginResponse?.admin === true) return 'admin';
-  if (credencial === 'admin') return 'admin';
-  return 'usuario';
 }
 
 // --- COMPROBACIÓN DE ADULTERACIÓN DE SESIÓN (ANTI-TAMPERING) ---
 function checkSessionIntegrity() {
-  const localCred = localStorage.getItem('credencial');
+  const session = BancoAPI.getStoredSession();
   
   // Si en memoria figura logueado pero en localStorage la credencial cambió o se borró
-  if (state.activeUser && localCred !== state.activeUser) {
+  if (state.activeUser && (!session || session.credencial !== state.activeUser || session.role !== state.role)) {
     console.warn('¡Adulteración de sesión detectada!');
     forzarLogout('¡Alerta de Seguridad! Se ha detectado una modificación no autorizada de la sesión. Sesión cerrada.');
     return true;
   }
   
   // Si en memoria figura deslogueado pero en localStorage agregaron credenciales fraudulentas
-  if (!state.activeUser && localCred) {
+  if (!state.activeUser && session) {
     console.warn('¡Intento de sesión fraudulenta detectado!');
     forzarLogout(null);
     return true;
@@ -100,7 +64,7 @@ function checkSessionIntegrity() {
 function forzarLogout(mensaje) {
   BancoAPI.logout();
   state.activeUser = null;
-  state.role = 'usuario';
+  state.role = null;
   state.activeAccount = null;
 
   document.getElementById('header-user-badge').textContent = 'Visitante';
@@ -125,7 +89,7 @@ function handleRouting() {
   // Si no hay hash en la URL, asignar la ruta predeterminada según el estado actual
   if (!route) {
     if (state.activeUser) {
-      route = state.role === 'admin' ? 'clientes' : 'cuenta';
+      route = getDefaultRoute(state.role);
     } else {
       route = 'login';
     }
@@ -135,7 +99,7 @@ function handleRouting() {
 
   // Redirigir a rutas por defecto si ingresa a una ruta no mapeada
   if (!ROUTES[route]) {
-    route = state.activeUser ? (state.role === 'admin' ? 'clientes' : 'cuenta') : 'login';
+    route = state.activeUser ? getDefaultRoute(state.role) : 'login';
     window.location.hash = `#/${route}`;
     return;
   }
@@ -143,7 +107,7 @@ function handleRouting() {
   // Guardias para el Login (Ruta Guest)
   if (ROUTES[route].role === 'guest') {
     if (state.activeUser) {
-      const defaultTab = state.role === 'admin' ? 'clientes' : 'cuenta';
+      const defaultTab = getDefaultRoute(state.role);
       window.location.hash = `#/${defaultTab}`;
       return;
     }
@@ -180,11 +144,6 @@ function handleRouting() {
 // --- INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
   UI.setupLiveComision();
-
-  const apiUrlLabel = document.getElementById('diagnostico-api-url');
-  if (apiUrlLabel) {
-    apiUrlLabel.textContent = API_URL || window.location.origin;
-  }
   
   // Configurar listeners de clicks en los botones de navegación
   document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -195,20 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Validar si existe sesión previa
-  const savedUser = localStorage.getItem('credencial');
-  if (savedUser) {
-    state.activeUser = savedUser;
-    const savedRole = normalizeRole(localStorage.getItem('role'));
-    const tokenRole = resolveRoleFromToken(localStorage.getItem('token'));
-    state.role = savedRole || tokenRole || (savedUser === 'admin' ? 'admin' : 'usuario');
-    
-    UI.hideLoginScreen();
-    UI.setupTabs(state.role);
-    document.getElementById('header-user-badge').textContent = state.role === 'admin' ? 'Administrador Core' : `Usuario: ${savedUser}`;
-    
-    if (state.role === 'admin') {
-      cargarDiagnosticoCore();
-    }
+  const savedSession = BancoAPI.getStoredSession();
+  if (savedSession) {
+    applySession(savedSession);
   } else {
     UI.showLoginScreen();
   }
@@ -234,26 +182,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     UI.showLoader();
     try {
-      const loginResponse = await BancoAPI.login(credencial, password);
+      const session = await BancoAPI.login(credencial, password);
+      applySession(session);
 
-      // Sincronizar estado seguro en memoria
-      state.activeUser = credencial;
-      state.role = resolveRoleFromResponse(loginResponse, credencial);
-      localStorage.setItem('role', state.role);
-
-      UI.hideLoginScreen();
-      UI.setupTabs(state.role);
-      document.getElementById('header-user-badge').textContent = state.role === 'admin' ? 'Administrador Core' : `Usuario: ${credencial}`;
-      
       UI.showToast(`Bienvenido al sistema transaccional, ${credencial}`, 'success');
 
       // Redirigir a la pestaña inicial por rol usando hash
-      const defaultRoute = state.role === 'admin' ? 'clientes' : 'cuenta';
+      const defaultRoute = getDefaultRoute(state.role);
       window.location.hash = `#/${defaultRoute}`;
 
-      if (state.role === 'admin') {
-        cargarDiagnosticoCore();
-      }
     } catch (error) {
       UI.showToast(`Error de autenticación: ${error.message}`, 'error');
     } finally {
