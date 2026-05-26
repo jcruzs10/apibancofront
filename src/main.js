@@ -1,5 +1,6 @@
 import { BancoAPI } from './api.js';
 import * as UI from './ui.js';
+import { API_URL } from './config.js';
 
 // --- MAPEO DE RUTAS Y ROLES REQUERIDOS ---
 const ROUTES = {
@@ -19,6 +20,60 @@ let state = {
   activeUser: null,
   activeAccount: null
 };
+
+function normalizeRole(value) {
+  if (!value) return null;
+  const text = String(value).toLowerCase();
+  if (text.includes('admin')) return 'admin';
+  if (text.includes('usuario') || text.includes('user')) return 'usuario';
+  return null;
+}
+
+function decodeJwtPayload(token) {
+  if (!token) return null;
+  const parts = token.split('.');
+  if (parts.length < 2) return null;
+  const base64Url = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+  const padding = '='.repeat((4 - (base64Url.length % 4)) % 4);
+  try {
+    return JSON.parse(atob(base64Url + padding));
+  } catch (error) {
+    console.warn('No se pudo decodificar el token para resolver rol.', error);
+    return null;
+  }
+}
+
+function resolveRoleFromToken(token) {
+  const payload = decodeJwtPayload(token);
+  if (!payload) return null;
+
+  const roleFromPayload = normalizeRole(payload.role || payload.rol || payload.perfil || payload.tipoUsuario);
+  if (roleFromPayload) return roleFromPayload;
+
+  const roles = payload.roles || payload.authorities || payload.claims;
+  if (Array.isArray(roles)) {
+    const match = roles.map(normalizeRole).find(Boolean);
+    if (match) return match;
+  }
+
+  if (payload.isAdmin === true || payload.admin === true) return 'admin';
+  return null;
+}
+
+function resolveRoleFromResponse(loginResponse, credencial) {
+  const responseRole = normalizeRole(loginResponse?.role || loginResponse?.rol || loginResponse?.perfil || loginResponse?.tipoUsuario);
+  if (responseRole) return responseRole;
+
+  const roles = loginResponse?.roles || loginResponse?.authorities || loginResponse?.claims;
+  if (Array.isArray(roles)) {
+    const match = roles.map(normalizeRole).find(Boolean);
+    if (match) return match;
+  }
+
+  if (loginResponse?.isAdmin === true || loginResponse?.admin === true) return 'admin';
+  if (credencial === 'admin') return 'admin';
+  return 'usuario';
+}
 
 // --- COMPROBACIÓN DE ADULTERACIÓN DE SESIÓN (ANTI-TAMPERING) ---
 function checkSessionIntegrity() {
@@ -125,6 +180,11 @@ function handleRouting() {
 // --- INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
   UI.setupLiveComision();
+
+  const apiUrlLabel = document.getElementById('diagnostico-api-url');
+  if (apiUrlLabel) {
+    apiUrlLabel.textContent = API_URL || window.location.origin;
+  }
   
   // Configurar listeners de clicks en los botones de navegación
   document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -138,7 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedUser = localStorage.getItem('credencial');
   if (savedUser) {
     state.activeUser = savedUser;
-    state.role = savedUser === 'admin' ? 'admin' : 'usuario';
+    const savedRole = normalizeRole(localStorage.getItem('role'));
+    const tokenRole = resolveRoleFromToken(localStorage.getItem('token'));
+    state.role = savedRole || tokenRole || (savedUser === 'admin' ? 'admin' : 'usuario');
     
     UI.hideLoginScreen();
     UI.setupTabs(state.role);
@@ -172,11 +234,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     UI.showLoader();
     try {
-      await BancoAPI.login(credencial, password);
+      const loginResponse = await BancoAPI.login(credencial, password);
 
       // Sincronizar estado seguro en memoria
       state.activeUser = credencial;
-      state.role = credencial === 'admin' ? 'admin' : 'usuario';
+      state.role = resolveRoleFromResponse(loginResponse, credencial);
+      localStorage.setItem('role', state.role);
 
       UI.hideLoginScreen();
       UI.setupTabs(state.role);

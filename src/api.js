@@ -74,6 +74,7 @@ export const BancoAPI = {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('credencial');
+    localStorage.removeItem('role');
   },
 
   // --- CUENTAHABIENTES ---
